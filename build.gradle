@@ -1,11 +1,30 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
 group 'scales-modbus'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/rgrisha/scales-modbus")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
 
 task customFatJar(type: Jar) {
     manifest {
