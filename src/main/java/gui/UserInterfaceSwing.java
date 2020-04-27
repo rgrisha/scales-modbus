@@ -1,16 +1,13 @@
 package gui;
 
-import model.Configuration;
-import model.MasterInfo;
-import model.WeightInfo;
-import model.ZeroCommand;
+import model.*;
 
 import javax.swing.*;
-import javax.swing.plaf.BorderUIResource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -25,6 +22,7 @@ public class UserInterfaceSwing implements UserInterface, ActionListener {
     private Configuration configuration;
 
     Map<String, JLabel> masterInfoLabel = new HashMap<>();
+    Map<String, String> titleDisplay = new HashMap<>();
     Map<String, MasterInfo> zeroCommands = new HashMap<>();
 
     private UserInterfaceSwing() {}
@@ -44,59 +42,68 @@ public class UserInterfaceSwing implements UserInterface, ActionListener {
 
         frame.setContentPane(pane);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(300, 200);
+        frame.setSize(500, 120);
         pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
    }
 
     @Override
     public void addMaster(MasterInfo mi) {
 
-        JPanel masterPane = new JPanel();
-        masterPane.setLayout(new BoxLayout(masterPane, BoxLayout.LINE_AXIS));
+        Box masterBox = Box.createHorizontalBox();
 
         Font font = new Font("Arial", Font.PLAIN, 20);
         JLabel labelName = new JLabel(mi.getName());
+        labelName.setPreferredSize(new Dimension(100, 50));
         labelName.setFont(font);
-        labelName.setAlignmentX(Component.LEFT_ALIGNMENT);
-        masterPane.add(labelName);
-        masterPane.add(Box.createRigidArea(new Dimension(10,0)));
+        labelName.setHorizontalAlignment(SwingConstants.LEFT);
+        masterBox.add(Box.createHorizontalStrut(10));
+        masterBox.add(labelName);
+        masterBox.add(Box.createHorizontalGlue());
 
         JLabel labelWeight = new JLabel();
         labelWeight.setFont(font);
         masterInfoLabel.put(mi.getName(), labelWeight);
-        masterPane.add(labelWeight);
-        masterPane.add(Box.createRigidArea(new Dimension(10,0)));
+        masterBox.add(labelWeight);
 
         JButton zeroButton = new JButton(configuration.getSetZeroText());
         String zeroCommand = ZERO_COMMAND + ";" + mi.getName();
         zeroButton.setActionCommand(zeroCommand);
         zeroCommands.put(zeroCommand, mi);
         zeroButton.addActionListener(this);
-        zeroButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        masterPane.add(zeroButton);
+        zeroButton.setPreferredSize(new Dimension(80, 30));
+        masterBox.add(Box.createHorizontalGlue());
+        masterBox.add(zeroButton);
+        masterBox.add(Box.createHorizontalStrut(10));
 
         pane.add(Box.createRigidArea(new Dimension(0,10)));
-        pane.add(masterPane);
+        pane.add(masterBox);
+
+        titleDisplay.put(mi.getName(), "");
 
         frame.setVisible(true);
     }
 
-    private void displayWeight(WeightInfo weightInfo) {
-        JLabel weightLabel = masterInfoLabel.get(weightInfo.getMaster().getName());
-        if(weightLabel == null) {
-            return;
+    private void displayInfo(DisplayMessage displayMessage) {
+        String masterName = displayMessage.getMasterInfo().getName();
+        JLabel weightLabel = masterInfoLabel.get(masterName);
+        weightLabel.setText(displayMessage.toString());
+        titleDisplay.put(masterName, displayMessage.toStringForTitle());
+        refreshTitle();
+    }
+
+    private void refreshTitle() {
+        String acc = "";
+        String delim = "";
+        for(String titleVal: titleDisplay.values()) {
+            acc = acc + delim + titleVal;
+            delim = " | ";
         }
-        String weightStr = weightInfo.getErrorMessage();
-        if(weightInfo.getWeight() != null) {
-            weightStr = Integer.toString(Math.round(weightInfo.getWeight()));
-        }
-        weightLabel.setText(weightStr);
-        frame.setTitle(weightStr);
+        frame.setTitle(acc);
     }
 
     @Override
-    public Consumer<WeightInfo> getWeightConsumer() {
-        return this::displayWeight;
+    public Consumer<DisplayMessage> getWeightConsumer() {
+        return this::displayInfo;
     }
 
     @Override

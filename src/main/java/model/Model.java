@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -36,10 +37,10 @@ public class Model {
     ModbusTcpMaster master;
 
     boolean isActive = false;
-    Consumer<WeightInfo> weightConsumer;
+    Consumer<DisplayMessage> weightConsumer;
     Consumer<ZeroCommand> zeroCommandConsumer;
 
-    public Model(Configuration configuration, Consumer<WeightInfo> weightConsumer) {
+    public Model(Configuration configuration, Consumer<DisplayMessage> weightConsumer) {
         this.configuration = configuration;
         this.weightConsumer = weightConsumer;
     }
@@ -61,12 +62,12 @@ public class Model {
         future.whenCompleteAsync((master, ex) -> {
             if(master == null) {
                 scheduler.schedule(() -> addMaster(masterInfo), configuration.getConnectRetryTimeoutSec(), TimeUnit.SECONDS);
-                String errorMsg = configuration.getNoConnectMsg() + " ... " + masterConnectRetryCount;
+                char[] dots = new char[masterConnectRetryCount % 5];
+                Arrays.fill(dots, '.');
+                String errorMsg = configuration.getNoConnectMsg() +  " " + new String(dots);
                 sendError(masterInfo, errorMsg);
                 logger.error("Cannot connect to master " + masterInfo.toString());
-                System.out.println("no conn to master " + masterInfo.toString());
             } else {
-                System.out.println("master connected: " + masterInfo.toString() + " " + master.toString());
                 masters.put(masterInfo, master);
                 isActive = true;
                 pollWeight(masterInfo);
@@ -89,13 +90,11 @@ public class Model {
     }
 
     private void sendWeightInfo(MasterInfo masterInfo, float weight) {
-        WeightInfo weightInfo = new WeightInfo(masterInfo, weight, null);
-        weightConsumer.accept(weightInfo);
+        weightConsumer.accept(new DisplayWeightMessage(masterInfo, weight));
     }
 
     private void sendError(MasterInfo masterInfo, String errorMsg) {
-        WeightInfo weightInfo = new WeightInfo(masterInfo, null, errorMsg);
-        weightConsumer.accept(weightInfo);
+        weightConsumer.accept(new DisplayErrorMessage(masterInfo, errorMsg));
     }
 
     private void pollWeight(MasterInfo masterInfo) {

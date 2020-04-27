@@ -3,11 +3,10 @@ package bootstrap;
 import com.sun.org.apache.bcel.internal.generic.ACONST_NULL;
 import gui.UserInterface;
 import gui.UserInterfaceSwing;
-import model.Configuration;
-import model.MasterInfo;
-import model.Model;
-import model.WeightInfo;
+import model.*;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.function.Consumer;
 
 public class Main {
@@ -27,14 +26,13 @@ public class Main {
         configuration.addMasterConfiguration(masterInfo);
 
         masterInfo = new MasterInfo();
-        masterInfo.setName("rus");
         masterInfo.setName("euro");
         masterInfo.setIpAddress("192.168.1.101");
         masterInfo.setPort(502);
         configuration.addMasterConfiguration(masterInfo);
 
         UserInterface ui = UserInterfaceSwing.newInterface(configuration);
-        Consumer<WeightInfo> weightConsumer = ui.getWeightConsumer();
+        Consumer<DisplayMessage> weightConsumer = ui.getWeightConsumer();
         Model model = new Model(configuration, weightConsumer);
 
         for(int i = 0; i < configuration.getMasterCount(); i++) {
