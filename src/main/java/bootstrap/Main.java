@@ -1,35 +1,28 @@
 package bootstrap;
 
-import com.sun.org.apache.bcel.internal.generic.ACONST_NULL;
 import gui.UserInterface;
 import gui.UserInterfaceSwing;
 import model.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.function.Consumer;
 
 public class Main {
+    private static final Logger logger = LogManager.getLogger(Model.class);
 
     public static void main(String[] args) {
 
-        Configuration configuration = new Configuration();
-        configuration.setPollPeriodMs(500);
-        configuration.setConnectRetryTimeoutSec(10);
-        configuration.setSetZeroText("Nust. 0");
-        configuration.setConnectingMessage("Jungiamasi");
+        Configuration configuration = null;
 
-        MasterInfo masterInfo = new MasterInfo();
-        masterInfo.setName("rus");
-        masterInfo.setIpAddress("192.168.1.100");
-        masterInfo.setPort(502);
-        configuration.addMasterConfiguration(masterInfo);
-
-        masterInfo = new MasterInfo();
-        masterInfo.setName("euro");
-        masterInfo.setIpAddress("192.168.1.101");
-        masterInfo.setPort(502);
-        configuration.addMasterConfiguration(masterInfo);
+        try {
+            configuration = ConfigurationReader.getConfiguration("config.properties");
+        } catch (ConfigurationReaderException e) {
+            JOptionPane.showMessageDialog(null, e.toString());
+            logger.error("Config reading error: " + e.toString());
+            return;
+        }
 
         UserInterface ui = UserInterfaceSwing.newInterface(configuration);
         Consumer<DisplayMessage> weightConsumer = ui.getWeightConsumer();

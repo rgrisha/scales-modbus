@@ -5,11 +5,19 @@ import java.util.List;
 
 public class Configuration {
 
-    private int pollPeriodMs;
-    private int connectRetryTimeoutSec;
+    @ConfigProperty
+    private int pollPeriodMs = 300;
+
+    @ConfigProperty
+    private int connectRetryTimeoutSec = 6;
+
+    @ConfigProperty
+    private String setZeroText = "Nust. 0";
+
+    @ConfigProperty
+    private String connectingMessage = "Jungiamasi";
+
     private List<MasterInfo> masterConfigs = new ArrayList<>();
-    private String setZeroText;
-    private String connectingMessage;
 
     public int getPollPeriodMs() {
         return pollPeriodMs;
@@ -19,12 +27,20 @@ public class Configuration {
         this.pollPeriodMs = pollPeriodMs;
     }
 
+    public void setPollPeriodMs(String val) {
+        this.pollPeriodMs = Integer.parseInt(val);
+    }
+
     public int getConnectRetryTimeoutSec() {
         return connectRetryTimeoutSec;
     }
 
     public void setConnectRetryTimeoutSec(int connectRetryTimeoutSec) {
         this.connectRetryTimeoutSec = connectRetryTimeoutSec;
+    }
+
+    public void setConnectRetryTimeoutSec(String val) {
+        this.connectRetryTimeoutSec = Integer.parseInt(val);
     }
 
     public String getSetZeroText() {

@@ -4,8 +4,13 @@ import java.util.Objects;
 
 public class MasterInfo {
 
+    @ConfigProperty
     private String name;
+
+    @ConfigProperty(nameInFile = "ip")
     private String ipAddress;
+
+    @ConfigProperty
     private int port;
 
     public String getName() {
@@ -30,6 +35,10 @@ public class MasterInfo {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public void setPort(String portVal) {
+        this.port = Integer.parseInt(portVal);
     }
 
     @Override
