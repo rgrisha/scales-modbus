@@ -8,6 +8,14 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
+task customFatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'bootstrap.Main'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 publishing {
     repositories {
         maven {
@@ -36,13 +44,6 @@ publishing {
     }
 }
 
-task customFatJar(type: Jar) {
-    manifest {
-        attributes 'Main-Class': 'bootstrap.Main'
-    }
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
 
 repositories {
     mavenCentral()
