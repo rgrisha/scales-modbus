@@ -31,7 +31,7 @@ publishing {
 
             groupId 'org.scales-modbus'
 
-            artifact customFatJar
+            artifact (tasks["customFatJar"])
         }
     }
 }
