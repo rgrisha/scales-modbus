@@ -7,7 +7,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -53,7 +52,7 @@ public class UserInterfaceSwing implements UserInterface, ActionListener {
 
         Font font = new Font("Arial", Font.PLAIN, 20);
         JLabel labelName = new JLabel(mi.getName());
-        labelName.setPreferredSize(new Dimension(100, 50));
+        labelName.setPreferredSize(new Dimension(150, 50));
         labelName.setFont(font);
         labelName.setHorizontalAlignment(SwingConstants.LEFT);
         masterBox.add(Box.createHorizontalStrut(10));
