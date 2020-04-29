@@ -47,7 +47,7 @@ public class Model {
 
     public void addMaster(MasterInfo masterInfo) {
         ModbusTcpMasterConfig config = new ModbusTcpMasterConfig
-                .Builder(masterInfo.getIpAddress())
+                .Builder(masterInfo.getAddress())
                 .setPort(masterInfo.getPort())
                 .setTimeout(Duration.ofSeconds(1))
                 .build();

@@ -7,8 +7,8 @@ public class MasterInfo {
     @ConfigProperty
     private String name;
 
-    @ConfigProperty(nameInFile = "ip")
-    private String ipAddress;
+    @ConfigProperty(nameInFile = "addr")
+    private String address;
 
     @ConfigProperty
     private int port;
@@ -21,12 +21,12 @@ public class MasterInfo {
         this.name = name;
     }
 
-    public String getIpAddress() {
-        return ipAddress;
+    public String getAddress() {
+        return address;
     }
 
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public int getPort() {
@@ -48,19 +48,19 @@ public class MasterInfo {
         MasterInfo that = (MasterInfo) o;
         return port == that.port &&
                 name.equals(that.name) &&
-                ipAddress.equals(that.ipAddress);
+                address.equals(that.address);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, ipAddress, port);
+        return Objects.hash(name, address, port);
     }
 
     @Override
     public String toString() {
         return "MasterInfo{" +
                 "name='" + name + '\'' +
-                ", ipAddress='" + ipAddress + '\'' +
+                ", ipAddress='" + address + '\'' +
                 ", port=" + port +
                 '}';
     }
