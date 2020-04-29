@@ -36,10 +36,11 @@ publishing {
      */
     publications {
         maven(MavenPublication) {
-
             groupId 'org.scales-modbus'
-
             artifact (tasks["customFatJar"])
+            artifact {
+                file 'config.properties'
+            }
         }
     }
 }
