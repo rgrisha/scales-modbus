@@ -27,13 +27,6 @@ publishing {
             }
         }
     }
-    /*
-    publications {
-        gpr(MavenPublication) {
-            from(components.java)
-        }
-    }
-     */
     publications {
         maven(MavenPublication) {
             groupId 'org.scales-modbus'
