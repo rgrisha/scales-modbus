@@ -60,7 +60,7 @@ public class MasterInfo {
     public String toString() {
         return "MasterInfo{" +
                 "name='" + name + '\'' +
-                ", ipAddress='" + address + '\'' +
+                ", addr='" + address + '\'' +
                 ", port=" + port +
                 '}';
     }
