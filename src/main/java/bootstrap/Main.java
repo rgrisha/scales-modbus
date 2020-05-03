@@ -1,5 +1,6 @@
 package bootstrap;
 
+import controller.Controller;
 import gui.UserInterface;
 import gui.UserInterfaceSwing;
 import model.*;
@@ -10,7 +11,7 @@ import javax.swing.*;
 import java.util.function.Consumer;
 
 public class Main {
-    private static final Logger logger = LogManager.getLogger(Model.class);
+    private static final Logger logger = LogManager.getLogger(Controller.class);
 
     public static void main(String[] args) {
 
@@ -26,14 +27,14 @@ public class Main {
 
         UserInterface ui = UserInterfaceSwing.newInterface(configuration);
         Consumer<DisplayMessage> weightConsumer = ui.getWeightConsumer();
-        Model model = new Model(configuration, weightConsumer);
+        Controller controller = new Controller(configuration, weightConsumer);
 
         for(int i = 0; i < configuration.getMasterCount(); i++) {
             ui.addMaster(configuration.getMasterConfiguration(i));
-            model.addMaster(configuration.getMasterConfiguration(i));
+            controller.addMaster(configuration.getMasterConfiguration(i));
         }
 
-        ui.setEventListenerCommandZero(model.getZeroCommandConsumer());
+        ui.setEventListenerCommandZero(controller.getZeroCommandConsumer());
 
     }
 }

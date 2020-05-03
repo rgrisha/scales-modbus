@@ -1,4 +1,4 @@
-package model;
+package controller;
 
 import com.digitalpetri.modbus.codec.Modbus;
 import com.digitalpetri.modbus.master.ModbusTcpMaster;
@@ -9,6 +9,7 @@ import com.digitalpetri.modbus.responses.ReadHoldingRegistersResponse;
 import com.digitalpetri.modbus.responses.WriteSingleRegisterResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.ReferenceCountUtil;
+import model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,9 +23,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class Model {
+public class Controller {
 
-    private static final Logger logger = LogManager.getLogger(Model.class);
+    private static final Logger logger = LogManager.getLogger(Controller.class);
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     static int WEIGHT_REGISTER = 0x2002;
     static int ZERO_REGISTER = 0x2061;
@@ -39,7 +40,7 @@ public class Model {
     Consumer<DisplayMessage> weightConsumer;
     Consumer<ZeroCommand> zeroCommandConsumer;
 
-    public Model(Configuration configuration, Consumer<DisplayMessage> weightConsumer) {
+    public Controller(Configuration configuration, Consumer<DisplayMessage> weightConsumer) {
         this.configuration = configuration;
         this.weightConsumer = weightConsumer;
     }
