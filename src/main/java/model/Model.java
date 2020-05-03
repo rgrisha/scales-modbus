@@ -34,7 +34,6 @@ public class Model {
     private Map<MasterInfo, Integer> masterConnectRetryCount = new HashMap<>();
 
     Configuration configuration;
-    ModbusTcpMaster master;
 
     boolean isActive = false;
     Consumer<DisplayMessage> weightConsumer;
@@ -54,19 +53,14 @@ public class Model {
 
         sendError(masterInfo, configuration.getConnectingMessage());
 
-        master = new ModbusTcpMaster(config);
-        CompletableFuture<ModbusTcpMaster> future = master.connect();
-
-        final int masterConnectRetryCount = getMasterConnectRetryCount(masterInfo);
+        ModbusTcpMaster newMaster = new ModbusTcpMaster(config);
+        CompletableFuture<ModbusTcpMaster> future = newMaster.connect();
 
         future.whenCompleteAsync((master, ex) -> {
             if(master == null) {
                 scheduler.schedule(() -> addMaster(masterInfo), configuration.getConnectRetryTimeoutSec(), TimeUnit.SECONDS);
-                char[] dots = new char[masterConnectRetryCount % 5];
-                Arrays.fill(dots, '.');
-                String errorMsg = configuration.getNoConnectMsg() +  " " + new String(dots);
-                sendError(masterInfo, errorMsg);
-                logger.error("Cannot connect to master " + masterInfo.toString());
+                sendConnectionError(masterInfo);
+                logger.error("Cannot connect to master " + masterInfo.toString() + ex.toString());
             } else {
                 masters.put(masterInfo, master);
                 isActive = true;
@@ -75,6 +69,13 @@ public class Model {
         });
     }
 
+    private void sendConnectionError(MasterInfo masterInfo) {
+        final int masterConnectRetryCount = getMasterConnectRetryCount(masterInfo);
+        char[] dots = new char[masterConnectRetryCount % 5];
+        Arrays.fill(dots, '.');
+        String errorMsg = configuration.getNoConnectMsg() +  " " + new String(dots);
+        sendError(masterInfo, errorMsg);
+    }
 
     private int getMasterConnectRetryCount(MasterInfo masterInfo) {
         Integer retryCounter = masterConnectRetryCount.get(masterInfo);
@@ -119,9 +120,8 @@ public class Model {
                 sendWeightInfo(masterInfo, weight);
                 ReferenceCountUtil.release(response);
             } else {
-                logger.error("Completed exceptionally, message={}", ex.getMessage(), ex);
-                masters.remove(masterInfo);
-                addMaster(masterInfo);
+                sendConnectionError(masterInfo);
+                logger.error("Poll weight completed exceptionally " + ex.getMessage(), ex);
             }
             scheduler.schedule(() -> pollWeight(masterInfo), configuration.getPollPeriodMs(), TimeUnit.MILLISECONDS);
         }, Modbus.sharedExecutor());
@@ -148,18 +148,10 @@ public class Model {
                 ReferenceCountUtil.release(response);
                 System.out.println("got response to zero: " + response.toString());
             } else {
-                logger.error("Completed exceptionally, message={}", ex.getMessage(), ex);
-                masters.remove(zeroCommand.getMasterInfo());
-                addMaster(zeroCommand.getMasterInfo());
+                logger.error("SendZero completed exceptionally " + ex.getMessage(), ex);
             }
         }, Modbus.sharedExecutor());
 
-    }
-
-    public void onExit() {
-        isActive = false;
-        scheduler.shutdown();
-        master.disconnect();
     }
 
     public Consumer<ZeroCommand> getZeroCommandConsumer() {
